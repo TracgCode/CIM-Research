@@ -1,3 +1,40 @@
+module ALUWithMem #(parameter N=8, WriteWidth = 4) (
+input set,
+input clk,
+//input [8*N*N-1:0] matIn,
+input [WriteWidth-1:0] matIn,
+input [8*N-1:0] vIn,
+output [(16+$clog2(N))*N-1:0] vOut
+);
+
+    reg [8*N*N-1:0] matMem;
+    reg writing;
+
+    always @(posedge clk) begin
+        case(writing)
+            0: begin
+
+            end
+
+
+            default: begin
+
+            end
+
+        endcase
+    end
+
+    MatVecProduct8Bits #(
+	.N(N)
+     ) matVecProduct8Bits (
+	.matIn(matMem),
+	.vIn  (vIn),
+	.vOut (vOut)
+    );
+
+endmodule
+
+// Basic Matrix-Vector multiplier, with dim N*N matrix as input, dim N vector input and output, INT8 number format
 module MatVecProduct8Bits #(parameter N=8) (
 input [8*N*N-1:0] matIn,
 input [8*N-1:0] vIn,

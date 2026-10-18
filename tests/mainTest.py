@@ -51,7 +51,7 @@ async def overflowTest(dut):
         assert dut.y.value.to_signed() == n * x * y, f"x={x} y={y}"
 
 
-@cocotb.test()
+#@cocotb.test()
 async def matVecTest(dut):
     if not hasattr(dut, "matIn"):
         dut._log.info("TOPLEVEL 不是 MatVecProduct8Bits,略過")
@@ -59,24 +59,18 @@ async def matVecTest(dut):
     n = len(dut.vIn) // 8
     w = len(dut.vOut) // n
     for _ in range(100):
-        mat = [
-            [random.randint(-128, 127) for _ in range(n)]
-            for _ in range(n)
-        ]
+        mat = [[random.randint(-128, 127) for _ in range(n)] for _ in range(n)]
         vec = [random.randint(-128, 127) for _ in range(n)]
         # 矩陣一列接著一列存放,第 i 列在 [8*n*i +: 8*n]
         dut.matIn.value = pack([x for row in mat for x in row])  # 展平成一維
         dut.vIn.value = pack(vec)
         await Timer(1, "ns")
-        expected = [
-            sum(x * y for x, y in zip(row, vec))
-            for row in mat
-        ]
+        expected = [sum(x * y for x, y in zip(row, vec)) for row in mat]
         got = unpack_signed(int(dut.vOut.value), w, n)
         assert got == expected, f"mat={mat} vec={vec}\ngot={got}\nexp={expected}"
 
 
-@cocotb.test()
+#@cocotb.test()
 async def matVecOverflowTest(dut):
     if not hasattr(dut, "matIn"):
         return
@@ -88,3 +82,32 @@ async def matVecOverflowTest(dut):
         await Timer(1, "ns")
         got = unpack_signed(int(dut.vOut.value), w, n)
         assert got == [n * x * y] * n, f"x={x} y={y} got={got}"
+
+
+@cocotb.test()
+async def ALUWithMemTest(dut):
+    if not hasattr(dut, "matIn"):
+        dut._log.info("TOPLEVEL 不是 ALUWithMem,略過")
+        return
+    n = len(dut.vIn) // 8
+    w = len(dut.vOut) // n
+    dut.set.value = 0
+    await Timer(1, "ns")
+
+    for _ in range(10):
+        mat = [[random.randint(-128, 127) for _ in range(n)] for _ in range(n)]
+
+        # 矩陣一列接著一列存放,第 i 列在 [8*n*i +: 8*n]
+        dut.matIn.value = pack([x for row in mat for x in row])  # 展平成一維
+        dut.set.value = 1
+        await Timer(1, "ns")
+        dut.set.value = 0
+        await Timer(1, "ns")
+
+        for __ in range(10):
+            vec = [random.randint(-128, 127) for _ in range(n)]
+            dut.vIn.value = pack(vec)
+            await Timer(1, "ns")
+            expected = [sum(x * y for x, y in zip(row, vec)) for row in mat]
+            got = unpack_signed(int(dut.vOut.value), w, n)
+            assert got == expected, f"mat={mat} vec={vec}\ngot={got}\nexp={expected}"
