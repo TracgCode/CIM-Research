@@ -1,0 +1,373 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 860" width="100%" height="100%" style="background-color: #0b1120; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38bdf8"/></marker>
+    <marker id="arr-rose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#fb7185"/></marker>
+    <marker id="arr-green" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#34d399"/></marker>
+    <marker id="arr-indigo" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#818cf8"/></marker>
+  </defs>
+  <rect width="1560" height="860" fill="#0b1120"/>
+  <text x="35" y="42" font-size="22" font-weight="700" fill="#f8fafc">CIM8Bits Top-Level (2D Mesh of MatVecMulWithMem + ReLU8Bits Tiles)</text>
+  <text x="35" y="66" font-size="13" fill="#94a3b8">Architecture sketch: R×C mesh (3×3 shown), N=8, In/Out Reg = 8N = 64 bit, instruction-driven mesh dataflow</text>
+  <rect x="25" y="85" width="1510" height="745" rx="14" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+  <rect x="35" y="93" width="190" height="22" rx="4" fill="#1e293b"/>
+  <text x="45" y="108" font-size="12" font-weight="600" fill="#cbd5e1">Module: CIM8Bits</text>
+
+  <!-- Controller -->
+  <rect x="35" y="130" width="295" height="210" rx="10" fill="#1e293b" stroke="#fb7185" stroke-width="1.8"/>
+  <text x="182" y="153" font-size="13" font-weight="700" fill="#fecdd3" text-anchor="middle">Controller (Sequencer)</text>
+  <line x1="45" y1="161" x2="320" y2="161" stroke="#475569"/>
+  <rect x="45" y="172" width="135" height="42" rx="5" fill="#0f172a" stroke="#fb7185" stroke-width="1"/>
+  <text x="112" y="197" font-size="11" font-weight="600" fill="#fecdd3" text-anchor="middle">PC / Fetch</text>
+  <rect x="185" y="172" width="135" height="42" rx="5" fill="#0f172a" stroke="#fb7185" stroke-width="1"/>
+  <text x="252" y="197" font-size="11" font-weight="600" fill="#fecdd3" text-anchor="middle">Instr Decoder</text>
+  <rect x="45" y="226" width="135" height="42" rx="5" fill="#0f172a" stroke="#fb7185" stroke-width="1"/>
+  <text x="112" y="251" font-size="11" font-weight="600" fill="#fecdd3" text-anchor="middle">Tile Cfg Generator</text>
+  <rect x="185" y="226" width="135" height="42" rx="5" fill="#0f172a" stroke="#fb7185" stroke-width="1"/>
+  <text x="252" y="251" font-size="11" font-weight="600" fill="#fecdd3" text-anchor="middle">Sync / Loop Ctrl</text>
+  <text x="182" y="292" font-size="10" fill="#cbd5e1" text-anchor="middle">ISA: LOAD · MATVEC · RELU · ROUTE · SYNC · JUMP</text>
+  <text x="182" y="310" font-size="10" fill="#94a3b8" text-anchor="middle">per-tile or broadcast; sets srcSel / bankSel / reluEn</text>
+  <path d="M 330 240 L 385 240" fill="none" stroke="#fb7185" stroke-width="2.5" stroke-dasharray="5,3" marker-end="url(#arr-rose)"/>
+
+  <!-- Instruction cache -->
+  <rect x="35" y="390" width="295" height="130" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.8"/>
+  <text x="182" y="414" font-size="13" font-weight="700" fill="#e0e7ff" text-anchor="middle">Instruction Cache</text>
+  <line x1="45" y1="422" x2="320" y2="422" stroke="#475569"/>
+  <rect x="55" y="434" width="255" height="26" rx="4" fill="#312e81" stroke="#6366f1"/>
+  <text x="182" y="451" font-size="11" font-weight="600" fill="#c7d2fe" text-anchor="middle">Instr SRAM (M entries × W bits)</text>
+  <text x="182" y="482" font-size="10" fill="#cbd5e1" text-anchor="middle">hit → issue to controller</text>
+  <text x="182" y="500" font-size="10" fill="#94a3b8" text-anchor="middle">miss → stall, refill from host</text>
+  <path d="M 230 390 L 230 340" fill="none" stroke="#fb7185" stroke-width="2" marker-end="url(#arr-rose)"/>
+  <text x="238" y="370" font-size="9" fill="#fecdd3">instr</text>
+  <path d="M 150 340 L 150 390" fill="none" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arr-rose)"/>
+  <text x="142" y="370" font-size="9" fill="#fecdd3" text-anchor="end">PC</text>
+
+  <!-- Host interface -->
+  <rect x="35" y="690" width="295" height="80" rx="10" fill="#064e3b" stroke="#34d399" stroke-width="1.8"/>
+  <text x="182" y="716" font-size="13" font-weight="700" fill="#ecfdf5" text-anchor="middle">Host Interface</text>
+  <text x="182" y="738" font-size="10" fill="#a7f3d0" text-anchor="middle">cmdInSet, dataIn [31:0]  →  instr / matrix / vector</text>
+  <text x="182" y="756" font-size="10" fill="#a7f3d0" text-anchor="middle">dataOut [31:0]  ←  results</text>
+  <path d="M 120 690 L 120 520" fill="none" stroke="#fb7185" stroke-width="2" marker-end="url(#arr-rose)"/>
+  <text x="128" y="610" font-size="9" fill="#fecdd3">instr fill</text>
+
+  <!-- Control bus trunk -->
+  <path d="M 385 162 L 385 582" fill="none" stroke="#fb7185" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <text x="372" y="372" font-size="10" font-weight="600" fill="#fb7185" text-anchor="middle" transform="rotate(-90 372 372)">Control / Config Bus</text>
+  <!-- Data bus trunk -->
+  <path d="M 330 745 L 1480 745 L 1480 288" fill="none" stroke="#38bdf8" stroke-width="2.5" marker-start="url(#arr-blue)" marker-end="url(#arr-blue)"/>
+  <text x="1500" y="500" font-size="10" font-weight="600" fill="#38bdf8" text-anchor="middle" transform="rotate(90 1500 500)">Load / Store Data Bus</text>
+
+  <path d="M 385 162 L 1428 162" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,3"/>
+  <circle cx="385" cy="162" r="3" fill="#fb7185"/>
+  <path d="M 440 288 L 1480 288" fill="none" stroke="#38bdf8" stroke-width="2"/>
+  <circle cx="1480" cy="288" r="3" fill="#38bdf8"/>
+  <path d="M 385 372 L 1428 372" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,3"/>
+  <circle cx="385" cy="372" r="3" fill="#fb7185"/>
+  <path d="M 440 498 L 1480 498" fill="none" stroke="#38bdf8" stroke-width="2"/>
+  <circle cx="1480" cy="498" r="3" fill="#38bdf8"/>
+  <path d="M 385 582 L 1428 582" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,3"/>
+  <circle cx="385" cy="582" r="3" fill="#fb7185"/>
+  <path d="M 440 708 L 1480 708" fill="none" stroke="#38bdf8" stroke-width="2"/>
+  <circle cx="1480" cy="708" r="3" fill="#38bdf8"/>
+  <path d="M 736 225 L 786 225" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="761" y="217" font-size="8" fill="#a5b4fc" text-anchor="middle">8N</text>
+  <path d="M 588 300 L 588 360" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="596" y="334" font-size="8" fill="#a5b4fc">8N</text>
+  <path d="M 1082 225 L 1132 225" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="1107" y="217" font-size="8" fill="#a5b4fc" text-anchor="middle">8N</text>
+  <path d="M 934 300 L 934 360" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="942" y="334" font-size="8" fill="#a5b4fc">8N</text>
+  <path d="M 1280 300 L 1280 360" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="1288" y="334" font-size="8" fill="#a5b4fc">8N</text>
+  <path d="M 736 435 L 786 435" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="761" y="427" font-size="8" fill="#a5b4fc" text-anchor="middle">8N</text>
+  <path d="M 588 510 L 588 570" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="596" y="544" font-size="8" fill="#a5b4fc">8N</text>
+  <path d="M 1082 435 L 1132 435" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="1107" y="427" font-size="8" fill="#a5b4fc" text-anchor="middle">8N</text>
+  <path d="M 934 510 L 934 570" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="942" y="544" font-size="8" fill="#a5b4fc">8N</text>
+  <path d="M 1280 510 L 1280 570" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="1288" y="544" font-size="8" fill="#a5b4fc">8N</text>
+  <path d="M 736 645 L 786 645" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="761" y="637" font-size="8" fill="#a5b4fc" text-anchor="middle">8N</text>
+  <path d="M 1082 645 L 1132 645" stroke="#818cf8" stroke-width="2.2" fill="none" marker-start="url(#arr-indigo)" marker-end="url(#arr-indigo)"/>
+  <text x="1107" y="637" font-size="8" fill="#a5b4fc" text-anchor="middle">8N</text>
+  <g transform="translate(440,150)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (0,0)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <g transform="translate(786,150)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (0,1)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <g transform="translate(1132,150)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (0,2)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <g transform="translate(440,360)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (1,0)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <g transform="translate(786,360)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (1,1)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <g transform="translate(1132,360)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (1,2)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <g transform="translate(440,570)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (2,0)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <g transform="translate(786,570)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (2,1)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <g transform="translate(1132,570)">
+    <rect x="0" y="0" width="296" height="150" rx="10" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+    <rect x="1" y="1" width="294" height="25" rx="9" fill="#134e4a"/>
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#ccfbf1">Tile (2,2)</text>
+    <text x="286" y="18" font-size="9" fill="#5eead4" text-anchor="end">cfg: srcSel · bankSel · reluEn</text>
+    <rect x="1" y="116" width="294" height="33" rx="9" fill="#0c4a6e"/>
+    <text x="148" y="136" font-size="9" fill="#bae6fd" text-anchor="middle">Load / Store port (matIn · vIn · vOut)</text>
+    <rect x="6" y="40" width="34" height="66" rx="4" fill="#1e293b" stroke="#818cf8"/>
+    <text x="23" y="70" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Src</text>
+    <text x="23" y="82" font-size="9" font-weight="700" fill="#c7d2fe" text-anchor="middle">Mux</text>
+    <rect x="48" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="70" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">In Reg</text>
+    <text x="70" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <rect x="100" y="40" width="84" height="66" rx="4" fill="#312e81" stroke="#6366f1"/>
+    <text x="142" y="66" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">MatVecMul</text>
+    <text x="142" y="78" font-size="9" font-weight="700" fill="#e0e7ff" text-anchor="middle">WithMem</text>
+    <text x="142" y="94" font-size="8" fill="#a5b4fc" text-anchor="middle">16 banks</text>
+    <rect x="192" y="40" width="46" height="66" rx="4" fill="#134e4a" stroke="#14b8a6"/>
+    <text x="215" y="68" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">ReLU</text>
+    <text x="215" y="80" font-size="9" font-weight="700" fill="#99f6e4" text-anchor="middle">8Bits</text>
+    <rect x="246" y="40" width="44" height="66" rx="4" fill="#064e3b" stroke="#34d399"/>
+    <text x="268" y="68" font-size="9" font-weight="700" fill="#ecfdf5" text-anchor="middle">Out Reg</text>
+    <text x="268" y="82" font-size="8" fill="#a7f3d0" text-anchor="middle">[8N-1:0]</text>
+    <path d="M 40 73 L 48 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 92 73 L 100 73" stroke="#38bdf8" stroke-width="1.8" fill="none" marker-end="url(#arr-blue)"/>
+    <path d="M 184 73 L 192 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 238 73 L 246 73" stroke="#34d399" stroke-width="1.8" fill="none" marker-end="url(#arr-green)"/>
+    <path d="M 184 48 L 188 48 L 188 34 L 268 34 L 268 40" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-green)"/>
+    <text x="228" y="31" font-size="7" fill="#a7f3d0" text-anchor="middle">bypass</text>
+  </g>
+  <!-- Legend -->
+  <g transform="translate(450, 780)">
+    <line x1="0" y1="8" x2="25" y2="8" stroke="#818cf8" stroke-width="2.2"/><text x="32" y="12" font-size="11" fill="#94a3b8">Mesh link (8N bit, per direction)</text>
+    <line x1="230" y1="8" x2="255" y2="8" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,3"/><text x="262" y="12" font-size="11" fill="#94a3b8">Control / instr</text>
+    <line x1="400" y1="8" x2="425" y2="8" stroke="#38bdf8" stroke-width="2.2"/><text x="432" y="12" font-size="11" fill="#94a3b8">Data load / store</text>
+    <line x1="570" y1="8" x2="595" y2="8" stroke="#34d399" stroke-width="2"/><text x="602" y="12" font-size="11" fill="#94a3b8">Compute datapath</text>
+  </g>
+  <text x="450" y="812" font-size="10" fill="#64748b">Mesh link: neighbor Out Reg → this tile's Src Mux; Src Mux picks N / E / S / W / Load per instruction. Edge ports are tied off.</text>
+</svg>
