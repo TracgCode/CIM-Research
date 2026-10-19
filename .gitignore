@@ -1,6 +1,10 @@
 /.claude/
+/.gemini/
+/.agents/
 /.DS_Store
 /results.xml
 __pycache__/
 /.venv/
 /sim_build_icarus/
+/.zed/
+/.slang/

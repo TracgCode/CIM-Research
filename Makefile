@@ -1,6 +1,6 @@
 TOPLEVEL_LANG = verilog
-VERILOG_SOURCES = $(PWD)/rtl/top.v
-TOPLEVEL ?= ALUWithMem
+VERILOG_SOURCES = $(wildcard $(PWD)/rtl/*.v)
+TOPLEVEL ?= MatVecMulWithMem
 COCOTB_TEST_MODULES = tests.mainTest
 PYTHONPATH := $(PWD)/tests:$(PYTHONPATH)
 SIM ?= icarus
