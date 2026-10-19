@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1070 620" width="100%" height="100%" style="background-color: #0b1120; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Arrowhead markers -->
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arr-rose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#fb7185"/>
+    </marker>
+    <marker id="arr-green" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#34d399"/>
+    </marker>
+    <!-- Gradients -->
+    <linearGradient id="active-lane" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+  </defs>
+  <rect width="1070" height="620" fill="#0b1120"/>
+
+  <!-- Title & Header -->
+  <text x="35" y="42" font-size="22" font-weight="700" fill="#f8fafc">ReLU8Bits (Parallel Activation Function)</text>
+  <text x="35" y="66" font-size="13" fill="#94a3b8">Hardware Datapath Architecture Block Diagram (Parameter N=8, Vector Width = 64-bit)</text>
+
+  <!-- Main Module Boundary -->
+  <rect x="25" y="85" width="1020" height="515" rx="14" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+  <rect x="35" y="93" width="220" height="22" rx="4" fill="#1e293b"/>
+  <text x="45" y="108" font-size="12" font-weight="600" fill="#cbd5e1">Module: ReLU8Bits #(parameter N=8)</text>
+
+  <!-- ==================== LEFT: INPUT PORT ==================== -->
+  <g transform="translate(15, 290)">
+    <rect x="0" y="0" width="115" height="34" rx="6" fill="#064e3b" stroke="#34d399" stroke-width="1.8"/>
+    <text x="57" y="21" font-size="12" font-weight="700" fill="#ecfdf5" text-anchor="middle">vIn [63:0]</text>
+  </g>
+
+  <!-- Connection to Demux -->
+  <path d="M 130 307 L 170 307" fill="none" stroke="#34d399" stroke-width="3" marker-end="url(#arr-green)"/>
+  <line x1="146" y1="300" x2="154" y2="314" stroke="#34d399" stroke-width="1.5"/>
+  <text x="150" y="295" font-size="9" fill="#a7f3d0" text-anchor="middle">64</text>
+
+  <!-- ==================== BUS SLICER ==================== -->
+  <rect x="170" y="130" width="85" height="400" rx="8" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+  <text x="212" y="330" font-size="12" font-weight="700" fill="#cbd5e1" text-anchor="middle" transform="rotate(-90 212 330)">Vector Slicer (8× INT8)</text>
+
+  <!-- ==================== PARALLEL LANES ==================== -->
+
+  <!-- Lane 0: Enlarged Detailed Architecture -->
+  <rect x="290" y="130" width="475" height="175" rx="10" fill="url(#active-lane)" stroke="#818cf8" stroke-width="2"/>
+  <rect x="300" y="138" width="165" height="20" rx="3" fill="#312e81"/>
+  <text x="310" y="152" font-size="11" font-weight="700" fill="#e0e7ff">Lane 0 Detail (INT8 Element 0)</text>
+
+  <!-- Lane 0 Input Connection -->
+  <path d="M 255 195 L 320 195" fill="none" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#arr-blue)"/>
+
+  <!-- Lane 0 Data branch to MUX (Input 0) -->
+  <path d="M 320 195 L 435 195" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="390" y="187" font-size="9" fill="#7dd3fc" text-anchor="middle">vIn[7:0] (pos)</text>
+
+  <!-- Lane 0 Zero branch to MUX (Input 1) -->
+  <rect x="350" y="225" width="55" height="24" rx="4" fill="#042f2e" stroke="#14b8a6" stroke-width="1.2"/>
+  <text x="377" y="241" font-size="11" font-weight="700" fill="#5eead4" text-anchor="middle">8'h00</text>
+  <path d="M 405 237 L 435 237" fill="none" stroke="#14b8a6" stroke-width="1.5" marker-end="url(#arr-green)"/>
+
+  <!-- Lane 0 Sign bit extraction (MSB vIn[7]) -->
+  <circle cx="340" cy="195" r="3.5" fill="#fb7185"/>
+  <path d="M 340 195 L 340 275 L 460 275 L 460 260" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arr-rose)"/>
+  <rect x="360" y="265" width="75" height="18" rx="3" fill="#0f172a" stroke="#fb7185" stroke-width="1"/>
+  <text x="397" y="278" font-size="9" font-weight="700" fill="#fecdd3" text-anchor="middle">MSB vIn[7]</text>
+
+  <!-- 2-to-1 MUX Trapezoid -->
+  <polygon points="435,175 485,188 485,248 435,260" fill="#1e293b" stroke="#818cf8" stroke-width="1.8"/>
+  <text x="448" y="200" font-size="10" font-weight="600" fill="#38bdf8" text-anchor="middle">0</text>
+  <text x="448" y="242" font-size="10" font-weight="600" fill="#5eead4" text-anchor="middle">1</text>
+  <text x="465" y="217" font-size="10" font-weight="700" fill="#e0e7ff" text-anchor="middle">MUX</text>
+  <text x="460" y="246" font-size="8" fill="#fecdd3" text-anchor="middle">sel</text>
+
+  <!-- MUX Output for Lane 0 -->
+  <path d="M 485 217 L 530 217" fill="none" stroke="#34d399" stroke-width="2.5" marker-end="url(#arr-green)"/>
+  <rect x="530" y="204" width="85" height="26" rx="4" fill="#064e3b" stroke="#34d399" stroke-width="1.2"/>
+  <text x="572" y="221" font-size="10" font-weight="700" fill="#ecfdf5" text-anchor="middle">vOut[7:0]</text>
+  <path d="M 615 217 L 800 217" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#arr-green)"/>
+
+  <!-- Formula Callout Card (Placed cleanly at upper right of Lane 0) -->
+  <rect x="625" y="142" width="130" height="52" rx="5" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+  <text x="690" y="160" font-size="10" font-weight="700" fill="#93c5fd" text-anchor="middle">ReLU Activation</text>
+  <text x="690" y="174" font-size="10" font-weight="600" fill="#f8fafc" text-anchor="middle">y = max(0, x)</text>
+  <text x="690" y="187" font-size="9" fill="#94a3b8" text-anchor="middle">0-cycle Combinational</text>
+
+  <!-- Lane 1 Compact Card -->
+  <rect x="290" y="325" width="475" height="44" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.2"/>
+  <path d="M 255 347 L 290 347" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="310" y="352" font-size="11" font-weight="600" fill="#cbd5e1">Lane 1 (INT8 Element 1)</text>
+  <text x="500" y="352" font-size="10" fill="#94a3b8">vIn[15] ? 8'h00 : vIn[15:8]</text>
+  <path d="M 765 347 L 800 347" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#arr-green)"/>
+  <text x="757" y="340" font-size="9" fill="#a7f3d0" text-anchor="end">vOut[15:8]</text>
+
+  <!-- Ellipsis -->
+  <text x="527" y="405" font-size="20" fill="#64748b" text-anchor="middle">⋮</text>
+
+  <!-- Lane 7 Compact Card -->
+  <rect x="290" y="435" width="475" height="44" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.2"/>
+  <path d="M 255 457 L 290 457" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="310" y="462" font-size="11" font-weight="600" fill="#cbd5e1">Lane 7 (INT8 Element 7)</text>
+  <text x="500" y="462" font-size="10" fill="#94a3b8">vIn[63] ? 8'h00 : vIn[63:56]</text>
+  <path d="M 765 457 L 800 457" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#arr-green)"/>
+  <text x="757" y="450" font-size="9" fill="#a7f3d0" text-anchor="end">vOut[63:56]</text>
+
+  <!-- ==================== BUS CONCATENATOR ==================== -->
+  <rect x="800" y="130" width="85" height="400" rx="8" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+  <text x="842" y="330" font-size="12" font-weight="700" fill="#cbd5e1" text-anchor="middle" transform="rotate(90 842 330)">Vector Packer {Lane 7..0}</text>
+
+  <!-- ==================== OUTPUT PORT ==================== -->
+  <path d="M 885 307 L 925 307" fill="none" stroke="#34d399" stroke-width="3" marker-end="url(#arr-green)"/>
+  <line x1="901" y1="300" x2="909" y2="314" stroke="#34d399" stroke-width="1.5"/>
+  <text x="905" y="295" font-size="9" fill="#a7f3d0" text-anchor="middle">64</text>
+
+  <g transform="translate(925, 290)">
+    <rect x="0" y="0" width="115" height="34" rx="6" fill="#064e3b" stroke="#34d399" stroke-width="1.8"/>
+    <text x="57" y="21" font-size="12" font-weight="700" fill="#ecfdf5" text-anchor="middle">vOut [63:0]</text>
+  </g>
+
+  <!-- ==================== BOTTOM LEGEND ==================== -->
+  <g transform="translate(50, 560)">
+    <line x1="0" y1="10" x2="25" y2="10" stroke="#38bdf8" stroke-width="2"/>
+    <text x="32" y="14" font-size="11" fill="#94a3b8">Input Vector Bus</text>
+
+    <line x1="160" y1="10" x2="185" y2="10" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="3,2"/>
+    <text x="192" y="14" font-size="11" fill="#94a3b8">Sign Bit (MSB vIn[8i+7])</text>
+
+    <line x1="375" y1="10" x2="400" y2="10" stroke="#34d399" stroke-width="2"/>
+    <text x="407" y="14" font-size="11" fill="#94a3b8">Activated Output Bus</text>
+
+    <rect x="580" y="3" width="14" height="14" rx="2" fill="#312e81" stroke="#818cf8"/>
+    <text x="602" y="14" font-size="11" fill="#94a3b8">Detailed Lane Architecture</text>
+  </g>
+</svg>
